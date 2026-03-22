@@ -6,5 +6,6 @@ public class AutomatoneBot implements ModInitializer {
     @Override
     public void onInitialize() {
         BotCommand.register();
+        BotTicker.register(); // ensures bot ticks properly
     }
 }
