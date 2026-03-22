@@ -1,13 +1,13 @@
 package com.example.automatonebot;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameMode;
+import net.minecraft.network.ClientConnection;
 
 import java.util.UUID;
 
@@ -17,38 +17,23 @@ public class BotManager {
 
     public static ServerPlayerEntity createBot(MinecraftServer server, String name) {
         ServerWorld world = server.getOverworld();
-
         GameProfile profile = new GameProfile(UUID.randomUUID(), name);
 
         // Apply skin
         applySkin(server, profile);
 
-        ServerPlayerInteractionManager interactionManager =
-                new ServerPlayerInteractionManager(world);
+        // Interaction manager for fake player
+        ServerPlayerInteractionManager interactionManager = new ServerPlayerInteractionManager(world);
+        interactionManager.changeGameMode(GameMode.SURVIVAL);
 
         bot = new ServerPlayerEntity(server, world, profile, interactionManager);
 
-        // 🔥 CRITICAL: fake network connection
+        // Fake network connection (required so bot moves properly)
         ClientConnection connection = new ClientConnection(net.minecraft.network.NetworkSide.SERVERBOUND);
+        bot.networkHandler = new ServerPlayNetworkHandler(server, connection, bot);
 
-        bot.networkHandler = new ServerPlayNetworkHandler(
-                server,
-                connection,
-                bot
-        );
-
-        // Set gamemode (important for movement)
-        interactionManager.changeGameMode(GameMode.SURVIVAL);
-
-        // Spawn correctly
-        bot.refreshPositionAndAngles(
-                world.getSpawnPos().getX(),
-                world.getSpawnPos().getY(),
-                world.getSpawnPos().getZ(),
-                0,
-                0
-        );
-
+        // Spawn at world spawn
+        bot.refreshPositionAndAngles(world.getSpawnPos().getX(), world.getSpawnPos().getY(), world.getSpawnPos().getZ(), 0, 0);
         world.spawnEntity(bot);
 
         return bot;
@@ -58,7 +43,7 @@ public class BotManager {
         return bot;
     }
 
-    // ✅ Skin support
+    // Fetch skin from Mojang
     private static void applySkin(MinecraftServer server, GameProfile profile) {
         try {
             server.getSessionService().fillProfileProperties(profile, true);
