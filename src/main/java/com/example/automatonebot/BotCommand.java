@@ -43,4 +43,14 @@ public class BotCommand {
             return;
         }
 
-        IBaritone baritone =
+                IBaritone baritone = BaritoneAPI.getProvider().getBaritone(bot);
+
+        try {
+            // Execute real Baritone commands
+            baritone.getCommandManager().execute(input);
+            source.sendMessage(Text.literal("Executed: " + input));
+        } catch (Exception e) {
+            source.sendMessage(Text.literal("Error executing command: " + e.getMessage()));
+        }
+    }
+}
