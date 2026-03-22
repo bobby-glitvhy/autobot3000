@@ -13,19 +13,18 @@ public class BotCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("bot")
-                
-                // spawn bot with name
+
+                // Spawn bot with custom name
                 .then(CommandManager.literal("spawn")
                     .then(CommandManager.argument("name", StringArgumentType.word())
                         .executes(ctx -> {
                             String name = StringArgumentType.getString(ctx, "name");
                             BotManager.createBot(ctx.getSource().getServer(), name);
-
                             ctx.getSource().sendMessage(Text.literal("Bot spawned: " + name));
                             return 1;
                         })))
 
-                // send full baritone command
+                // Execute full Baritone commands
                 .then(CommandManager.argument("cmd", StringArgumentType.greedyString())
                     .executes(ctx -> {
                         String input = StringArgumentType.getString(ctx, "cmd");
@@ -44,14 +43,4 @@ public class BotCommand {
             return;
         }
 
-        IBaritone baritone = BaritoneAPI.getProvider().getBaritone(bot);
-
-        try {
-            // 🔥 REAL BARITONE COMMAND EXECUTION
-            baritone.getCommandManager().execute(input);
-
-        } catch (Exception e) {
-            source.sendMessage(Text.literal("Error: " + e.getMessage()));
-        }
-    }
-}
+        IBaritone baritone =
